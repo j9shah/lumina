@@ -870,7 +870,7 @@ export default function SharedCanvasPage() {
         display: "flex", 
         minHeight: "calc(100vh - 60px)", 
         height: "calc(100vh - 60px)",
-        background: "#181f2a", 
+        background: "#f5f5f5", 
         padding: 0, 
         overflow: "hidden",
         position: "fixed",
@@ -882,23 +882,23 @@ export default function SharedCanvasPage() {
         <aside className="mobile-sidebar" style={{ 
           width: "min(260px, 25vw)", 
           minWidth: 220, 
-          background: "#232b3a", 
-          borderRight: "1px solid #232b3a", 
+          background: "#fff", 
+          borderRight: "1px solid #ccc", 
           padding: 24, 
           display: "flex", 
           flexDirection: "column", 
           gap: 24, 
-          boxShadow: "2px 0 16px 0 #0002",
+          boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
           overflowY: "auto" 
         }}>
           <div>
-            <h1 style={{ margin: "0 0 12px", fontSize: 22, color: "#fff", fontWeight: 700, letterSpacing: 1 }}>
+            <h1 style={{ margin: "0 0 12px", fontSize: 22, color: "#333", fontWeight: 'bold' }}>
               Lumina Paint
             </h1>
-            <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: "#666", marginBottom: 16 }}>
               Session: {sessionId}
             </div>
-            <div style={{ fontSize: 12, color: "#10b981", marginBottom: 16 }}>
+            <div style={{ fontSize: 12, color: "#4a90e2", marginBottom: 16 }}>
               👥 {connectedUsers.size} user{connectedUsers.size !== 1 ? 's' : ''} online
             </div>
           </div>
@@ -909,17 +909,13 @@ export default function SharedCanvasPage() {
                 key={t.key}
                 style={{
                   padding: "12px 14px",
-                  borderRadius: 12,
-                  border: "none",
-                  background: tool === t.key ? "#0f172a" : "#232b3a",
-                  color: tool === t.key ? "#fff" : "#cbd5e1",
+                  border: "1px solid #ccc",
+                  background: tool === t.key ? "#4a90e2" : "#fff",
+                  color: tool === t.key ? "#fff" : "#333",
                   fontSize: 16,
-                  fontWeight: 500,
+                  fontWeight: 'normal',
                   cursor: "pointer",
-                  boxShadow: tool === t.key ? "0 2px 8px #0003" : "none",
                   marginBottom: 4,
-                  outline: tool === t.key ? "2px solid #38bdf8" : "none",
-                  transition: "all 0.2s",
                 }}
                 onClick={() => setTool(t.key)}
                 title={t.label}
@@ -930,17 +926,17 @@ export default function SharedCanvasPage() {
           </div>
           
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            <label style={{ display: "flex", alignItems: "center", gap: 10, color: "#cbd5e1", fontWeight: 500 }}>
+            <label style={{ display: "flex", alignItems: "center", gap: 10, color: "#333", fontWeight: 'normal' }}>
               <span>Color</span>
               <input
                 type="color"
                 value={color}
                 onChange={e => setColor(e.target.value)}
-                style={{ width: 44, height: 32, border: "none", borderRadius: 8, background: "#fff" }}
+                style={{ width: 44, height: 32, border: "1px solid #ccc", background: "#fff" }}
               />
             </label>
             {tool !== "text" && (
-              <label style={{ display: "flex", alignItems: "center", gap: 10, color: "#cbd5e1", fontWeight: 500 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 10, color: "#333", fontWeight: 'normal' }}>
                 <span>Size</span>
                 <input
                   type="range"
@@ -954,7 +950,7 @@ export default function SharedCanvasPage() {
               </label>
             )}
             {tool === "text" && (
-              <label style={{ display: "flex", alignItems: "center", gap: 10, color: "#cbd5e1", fontWeight: 500 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 10, color: "#333", fontWeight: 'normal' }}>
                 <span>Text Size</span>
                 <input
                   type="range"
@@ -964,7 +960,7 @@ export default function SharedCanvasPage() {
                   onChange={e => setTextSize(Number(e.target.value))}
                   style={{ width: "100%" }}
                 />
-                <span style={{ color: "#38bdf8", fontWeight: 700 }}>{textSize}</span>
+                <span style={{ color: "#4a90e2", fontWeight: 'bold' }}>{textSize}</span>
               </label>
             )}
           </div>
@@ -972,16 +968,14 @@ export default function SharedCanvasPage() {
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <button
               style={{ 
-                background: "linear-gradient(135deg, #10b981, #059669)", 
+                background: "#4a90e2", 
                 color: "#fff", 
-                border: "none", 
-                borderRadius: 12, 
+                border: "1px solid #4a90e2", 
                 padding: "12px 14px", 
                 fontSize: 16, 
-                fontWeight: 700, 
+                fontWeight: 'normal', 
                 cursor: "pointer", 
-                marginBottom: 4, 
-                boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)" 
+                marginBottom: 4
               }}
               onClick={() => {
                 const url = window.location.href;
@@ -996,16 +990,14 @@ export default function SharedCanvasPage() {
             <div style={{ display: "flex", gap: "8px" }}>
               <button
                 style={{ 
-                  background: historyIndex > 0 ? "#6366f1" : "#4a5568", 
+                  background: historyIndex > 0 ? "#4a90e2" : "#ccc", 
                   color: "#fff", 
-                  border: "none", 
-                  borderRadius: 8, 
+                  border: "1px solid #ccc", 
                   padding: "8px 12px", 
                   fontSize: 14, 
-                  fontWeight: 600, 
+                  fontWeight: 'normal', 
                   cursor: historyIndex > 0 ? "pointer" : "not-allowed", 
-                  flex: 1,
-                  boxShadow: "0 2px 4px #0002" 
+                  flex: 1
                 }}
                 onClick={undo}
                 disabled={historyIndex <= 0}
@@ -1015,16 +1007,14 @@ export default function SharedCanvasPage() {
               </button>
               <button
                 style={{ 
-                  background: historyIndex < history.length - 1 ? "#6366f1" : "#4a5568", 
+                  background: historyIndex < history.length - 1 ? "#4a90e2" : "#ccc", 
                   color: "#fff", 
-                  border: "none", 
-                  borderRadius: 8, 
+                  border: "1px solid #ccc", 
                   padding: "8px 12px", 
                   fontSize: 14, 
-                  fontWeight: 600, 
+                  fontWeight: 'normal', 
                   cursor: historyIndex < history.length - 1 ? "pointer" : "not-allowed", 
-                  flex: 1,
-                  boxShadow: "0 2px 4px #0002" 
+                  flex: 1
                 }}
                 onClick={redo}
                 disabled={historyIndex >= history.length - 1}
@@ -1035,24 +1025,24 @@ export default function SharedCanvasPage() {
             </div>
             
             <button
-              style={{ background: "#232b3a", color: "#fff", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 500, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #0002" }}
+              style={{ background: "#fff", color: "#333", border: "1px solid #ccc", padding: "12px 14px", fontSize: 16, fontWeight: 'normal', cursor: "pointer", marginBottom: 4 }}
               onClick={handleClear}
             >Clear</button>
             <button
-              style={{ background: "#38bdf8", color: "#181f2a", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 700, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #38bdf8" }}
+              style={{ background: "#4a90e2", color: "#fff", border: "1px solid #4a90e2", padding: "12px 14px", fontSize: 16, fontWeight: 'normal', cursor: "pointer", marginBottom: 4 }}
               onClick={() => handleSave("image/png", "artwork.png")}
             >Save PNG</button>
             <button
-              style={{ background: "#38bdf8", color: "#181f2a", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 700, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #38bdf8" }}
+              style={{ background: "#4a90e2", color: "#fff", border: "1px solid #4a90e2", padding: "12px 14px", fontSize: 16, fontWeight: 'normal', cursor: "pointer", marginBottom: 4 }}
               onClick={() => handleSave("image/jpeg", "artwork.jpg")}
             >Save JPEG</button>
             <button
-              style={{ background: "#9333ea", color: "#fff", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 700, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #9333ea" }}
+              style={{ background: "#4a90e2", color: "#fff", border: "1px solid #4a90e2", padding: "12px 14px", fontSize: 16, fontWeight: 'normal', cursor: "pointer", marginBottom: 4 }}
               onClick={() => handleSavePDF("artwork.pdf")}
             >Save PDF</button>
           </div>
           
-          <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, fontWeight: 500 }}>
+          <p style={{ fontSize: 13, color: "#666", margin: 0, fontWeight: 'normal' }}>
             Tips: 1-5 for tools • Ctrl+Z/Y for undo/redo
           </p>
         </aside>
@@ -1060,7 +1050,7 @@ export default function SharedCanvasPage() {
         <main className="mobile-main" style={{ 
           flex: 1, 
           padding: "min(16px, 1vw)", 
-          background: "#181f2a", 
+          background: "#f5f5f5", 
           display: "flex", 
           alignItems: "center", 
           justifyContent: "center",
@@ -1071,9 +1061,9 @@ export default function SharedCanvasPage() {
           <div className="mobile-canvas-container" style={{ 
             width: "100%", 
             height: "100%", 
-            background: "#232b3a", 
-            borderRadius: 24, 
-            boxShadow: "0 4px 32px #0004", 
+            background: "#fff", 
+            border: "1px solid #ccc", 
+            boxShadow: "0 2px 8px rgba(0,0,0,0.1)", 
             display: "flex", 
             alignItems: "center", 
             justifyContent: "center",
@@ -1087,11 +1077,9 @@ export default function SharedCanvasPage() {
                 width: "100%", 
                 height: "100%", 
                 background: "#fff", 
-                border: "2px solid #38bdf8", 
-                borderRadius: 18, 
+                border: "1px solid #ccc", 
                 display: "block", 
-                touchAction: "none", 
-                boxShadow: "0 2px 16px #38bdf8",
+                touchAction: "none",
                 cursor: tool === "brush" ? "crosshair" : tool === "eraser" ? "grab" : "pointer"
               }}
               onMouseDown={handleDown}
@@ -1124,9 +1112,8 @@ export default function SharedCanvasPage() {
                   minHeight: `${textBox.height}px`,
                   zIndex: 1001,
                   cursor: isDragging && selectedTextBox === textBox.id ? 'grabbing' : 'grab',
-                  border: selectedTextBox === textBox.id ? '2px dashed #38bdf8' : '2px solid transparent',
-                  borderRadius: '4px',
-                  background: selectedTextBox === textBox.id ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
+                  border: selectedTextBox === textBox.id ? '2px dashed #4a90e2' : '2px solid transparent',
+                  background: selectedTextBox === textBox.id ? 'rgba(74, 144, 226, 0.1)' : 'transparent',
                   padding: '4px'
                 }}
                 onMouseDown={(e) => handleTextBoxMouseDown(e, textBox.id)}
@@ -1249,7 +1236,7 @@ export default function SharedCanvasPage() {
                   position: 'absolute',
                   top: '-8px',
                   right: '-8px',
-                  background: '#232b3a',
+                  background: '#fff',
                   borderRadius: '50%',
                   width: '16px',
                   height: '16px',
@@ -1257,8 +1244,8 @@ export default function SharedCanvasPage() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '8px',
-                  border: '1px solid #fff',
-                  boxShadow: '0 1px 4px rgba(0,0,0,0.3)'
+                  border: '1px solid #ccc',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.2)'
                 }}>
                   {getToolEmoji(cursor.tool)}
                 </div>
