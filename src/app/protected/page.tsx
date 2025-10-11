@@ -42,95 +42,80 @@ export default function ProtectedPage() {
   };
 
   return (
-    <div style={{ 
-      minHeight: "calc(100vh - 60px)", 
+    <div style={{
+      minHeight: "calc(100vh - 60px)",
       background: "#181f2a",
-      padding: "2rem",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center"
+      padding: "4rem 0 0 6vw",
+      display: "block"
     }}>
       <div style={{
-        maxWidth: '800px',
+        maxWidth: '1200px',
         width: '100%',
-        background: '#232b3a',
-        borderRadius: '24px',
-        padding: '3rem',
-        boxShadow: '0 4px 32px rgba(0,0,0,0.3)',
-        textAlign: 'center'
+        background: 'none',
+        borderRadius: '0',
+        padding: '0',
+        boxShadow: 'none',
+        textAlign: 'left'
       }}>
         {user && (
           <div style={{
-            background: '#181f2a',
-            borderRadius: '12px',
-            padding: '1rem',
-            marginBottom: '2rem',
-            border: '2px solid #38bdf8'
+            marginBottom: '2.5rem',
           }}>
-            <div style={{ color: '#38bdf8', fontSize: '14px', fontWeight: 600 }}>
+            <div style={{ color: '#38bdf8', fontSize: '1.2rem', fontWeight: 600 }}>
               Welcome back, {user.email}!
             </div>
           </div>
         )}
 
         <div style={{ display: 'flex', gap: '2rem', alignItems: 'stretch' }}>
-          {/* Create New Session */}
+          {/* Create New Session Card */}
           <div style={{
             flex: 1,
-            background: '#181f2a',
+            background: '#232b3a',
             borderRadius: '16px',
-            padding: '2rem',
-            border: '2px solid #10b981'
+            padding: '2.5rem',
+            boxShadow: 'none'
           }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#10b981', fontSize: '1.3rem' }}>
+            <h3 style={{ margin: '0 0 1.5rem 0', color: '#10b981', fontSize: '2.2rem', fontWeight: 700 }}>
               Start New Session
             </h3>
-            <p style={{ color: '#cbd5e1', margin: '0 0 1.5rem 0', fontSize: '14px' }}>
+            <p style={{ color: '#cbd5e1', margin: '0 0 2rem 0', fontSize: '1.2rem' }}>
               Create a fresh canvas and invite others to collaborate
             </p>
             <button
               onClick={createNewSession}
               style={{
-                background: 'linear-gradient(135deg, #10b981, #059669)',
+                background: '#10b981',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '12px',
-                padding: '16px 32px',
-                fontSize: '16px',
-                fontWeight: 600,
+                borderRadius: '8px',
+                padding: '20px 0',
+                fontSize: '1.3rem',
+                fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
-                transition: 'all 0.2s',
+                boxShadow: 'none',
                 width: '100%'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(16, 185, 129, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = '0 4px 16px rgba(16, 185, 129, 0.3)';
               }}
             >
               Create New Canvas
             </button>
           </div>
 
-          {/* Join Existing Session */}
+          {/* Join Existing Session Card */}
           <div style={{
             flex: 1,
-            background: '#181f2a',
+            background: '#232b3a',
             borderRadius: '16px',
-            padding: '2rem',
-            border: '2px solid #38bdf8'
+            padding: '2.5rem',
+            boxShadow: 'none'
           }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#38bdf8', fontSize: '1.3rem' }}>
+            <h3 style={{ margin: '0 0 1.5rem 0', color: '#38bdf8', fontSize: '2.2rem', fontWeight: 700 }}>
               Join Existing Session
             </h3>
-            <p style={{ color: '#cbd5e1', margin: '0 0 1.5rem 0', fontSize: '14px' }}>
-              Enter a session ID to join someone else's canvas
+            <p style={{ color: '#cbd5e1', margin: '0 0 2rem 0', fontSize: '1.2rem' }}>
+              Enter a session ID to join someone else&apos;s canvas
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
               <input
                 type="text"
                 value={sessionId}
@@ -138,12 +123,12 @@ export default function ProtectedPage() {
                 placeholder="Enter session ID..."
                 style={{
                   width: '100%',
-                  padding: '14px 16px',
+                  padding: '18px 20px',
                   borderRadius: '8px',
-                  border: '2px solid #4a5568',
-                  background: '#232b3a',
+                  border: 'none',
+                  background: '#181f2a',
                   color: '#fff',
-                  fontSize: '16px',
+                  fontSize: '1.1rem',
                   boxSizing: 'border-box'
                 }}
                 onKeyPress={(e) => e.key === 'Enter' && joinSession()}
@@ -156,39 +141,28 @@ export default function ProtectedPage() {
                   color: '#fff',
                   border: 'none',
                   borderRadius: '8px',
-                  padding: '14px 24px',
-                  fontSize: '16px',
-                  fontWeight: 600,
+                  padding: '18px 0',
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
                   cursor: sessionId.trim() ? 'pointer' : 'not-allowed',
-                  transition: 'all 0.2s',
                   width: '100%'
                 }}
               >
                 Join
               </button>
-              
               {sessionId.trim() && (
                 <button
                   onClick={shareCurrentUrl}
                   style={{
-                    background: 'transparent',
+                    background: 'none',
                     color: '#38bdf8',
-                    border: '2px solid #38bdf8',
+                    border: 'none',
                     borderRadius: '8px',
-                    padding: '8px 16px',
-                    fontSize: '14px',
+                    padding: '10px 0',
+                    fontSize: '1rem',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s',
                     width: '100%'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.background = '#38bdf8';
-                    e.currentTarget.style.color = '#fff';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'transparent';
-                    e.currentTarget.style.color = '#38bdf8';
                   }}
                 >
                   Copy Share Link
