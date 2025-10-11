@@ -54,12 +54,6 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="w-full flex flex-col items-center justify-center mt-16 py-8 border-t border-t-[#232b3a] text-gray-400 text-sm gap-4 z-10">
-        <div className="flex gap-6">
-          <span>🌐</span>
-          <span>🐦</span>
-          <span>📸</span>
-          <span>🎥</span>
-        </div>
         <p>© 2025 Lumina Paint. All rights reserved.</p>
       </footer>
 
