@@ -17,6 +17,7 @@ export default function ProtectedPage() {
     getUser();
   }, []);
 
+  // ai suggested simple time-based session ids
   const generateSessionId = () => {
     const timestamp = Date.now().toString(36);
     const random = Math.random().toString(36).substr(2, 5);

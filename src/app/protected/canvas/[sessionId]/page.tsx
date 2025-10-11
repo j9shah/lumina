@@ -76,6 +76,7 @@ export default function SharedCanvasPage() {
   const [isUndoRedo, setIsUndoRedo] = useState(false);
 
   // setup real-time connection on load
+  // ai helped with supabase real-time channel setup
   useEffect(() => {
     const initializeCollaboration = async () => {
       // Get current user
@@ -212,6 +213,7 @@ export default function SharedCanvasPage() {
   }, []);
 
   // handle drawing from other users
+  // ai built the remote event processing system
   const handleRemoteDrawing = (event: DrawingEvent) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -497,6 +499,7 @@ export default function SharedCanvasPage() {
     const p = getPos(e);
     
     // send cursor position to other users
+    // ai suggested real-time cursor sharing approach
     if (channel && currentUser) {
       channel.send({
         type: 'broadcast',
@@ -556,7 +559,8 @@ export default function SharedCanvasPage() {
     // Save to history after drawing
     setTimeout(() => saveToHistory(), 100);
     
-    // Broadcast completed path
+    // send completed drawing stroke to others
+    // ai designed the collaborative drawing event system
     if (channel && currentUser && currentPath.length > 0) {
       const eventType = tool === 'eraser' ? 'erase' : 'draw';
       channel.send({
