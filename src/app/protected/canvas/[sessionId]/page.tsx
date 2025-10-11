@@ -207,6 +207,39 @@ export default function SharedCanvasPage() {
         }
         break;
         
+      case 'bucket':
+        if (event.data.pos && event.data.color) {
+          // Perform bucket fill at the remote position
+          const tol = 24;
+          const dpr = Math.max(1, window.devicePixelRatio || 1);
+          const x0 = Math.floor(event.data.pos.x * dpr), y0 = Math.floor(event.data.pos.y * dpr);
+          const w = canvas.width, h = canvas.height;
+          const img = ctx.getImageData(0, 0, w, h), data = img.data;
+          const i0 = (y0*w + x0)*4, target = [data[i0],data[i0+1],data[i0+2],data[i0+3]], fillc = hex2rgba(event.data.color);
+          if (same(target, fillc)) return;
+          const stack=[[x0,y0]];
+          while(stack.length){
+            let pt=stack.pop();
+            if (!pt) continue;
+            let x=pt[0], y=pt[1];
+            while(x>=0 && near(x,y)) x--; x++;
+            let up=false, dn=false;
+            while(x<w && near(x,y)){
+              setp(x,y,fillc);
+              if(y>0   && near(x,y-1)){ if(!up){stack.push([x,y-1]); up=true;} } else up=false;
+              if(y<h-1 && near(x,y+1)){ if(!dn){stack.push([x,y+1]); dn=true;} } else dn=false;
+              x++;
+            }
+          }
+          ctx.putImageData(img,0,0);
+          function idx(x:number,y:number){ return (y*w + x)*4; }
+          function setp(x:number,y:number,c:number[]){ var i=idx(x,y); data[i]=c[0]; data[i+1]=c[1]; data[i+2]=c[2]; data[i+3]=255; }
+          function near(x:number,y:number){ var i=idx(x,y); return Math.abs(data[i]-target[0])<=tol && Math.abs(data[i+1]-target[1])<=tol && Math.abs(data[i+2]-target[2])<=tol && Math.abs(data[i+3]-target[3])<=tol; }
+          function same(a:number[],b:number[]){ return a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2]&&a[3]===255; }
+          function hex2rgba(hex:string){ var v=hex.replace("#",""); return [parseInt(v.substr(0,2),16),parseInt(v.substr(2,2),16),parseInt(v.substr(4,2),16),255]; }
+        }
+        break;
+        
       case 'clear':
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#ffffff";
@@ -250,6 +283,53 @@ export default function SharedCanvasPage() {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     const p = getPos(e);
+    
+    if (tool === "bucket") {
+      if (!canvas || !ctx) return;
+      // Bucket fill implementation
+      const tol = 24;
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const x0 = Math.floor(p.x * dpr), y0 = Math.floor(p.y * dpr);
+      const w = canvas.width, h = canvas.height;
+      const img = ctx.getImageData(0, 0, w, h), data = img.data;
+      const i0 = (y0*w + x0)*4, target = [data[i0],data[i0+1],data[i0+2],data[i0+3]], fillc = hex2rgba(color);
+      if (same(target, fillc)) return;
+      const stack=[[x0,y0]];
+      while(stack.length){
+        let pt=stack.pop();
+        if (!pt) continue;
+        let x=pt[0], y=pt[1];
+        while(x>=0 && near(x,y)) x--; x++;
+        let up=false, dn=false;
+        while(x<w && near(x,y)){
+          setp(x,y,fillc);
+          if(y>0   && near(x,y-1)){ if(!up){stack.push([x,y-1]); up=true;} } else up=false;
+          if(y<h-1 && near(x,y+1)){ if(!dn){stack.push([x,y+1]); dn=true;} } else dn=false;
+          x++;
+        }
+      }
+      ctx.putImageData(img,0,0);
+      function idx(x:number,y:number){ return (y*w + x)*4; }
+      function setp(x:number,y:number,c:number[]){ var i=idx(x,y); data[i]=c[0]; data[i+1]=c[1]; data[i+2]=c[2]; data[i+3]=255; }
+      function near(x:number,y:number){ var i=idx(x,y); return Math.abs(data[i]-target[0])<=tol && Math.abs(data[i+1]-target[1])<=tol && Math.abs(data[i+2]-target[2])<=tol && Math.abs(data[i+3]-target[3])<=tol; }
+      function same(a:number[],b:number[]){ return a[0]===b[0]&&a[1]===b[1]&&a[2]===b[2]&&a[3]===255; }
+      function hex2rgba(hex:string){ var v=hex.replace("#",""); return [parseInt(v.substr(0,2),16),parseInt(v.substr(2,2),16),parseInt(v.substr(4,2),16),255]; }
+      
+      // Broadcast bucket fill event
+      if (channel && currentUser) {
+        channel.send({
+          type: 'broadcast',
+          event: 'drawing',
+          payload: {
+            type: 'bucket',
+            data: { pos: p, color },
+            user: currentUser.id,
+            timestamp: Date.now()
+          }
+        });
+      }
+      return;
+    }
     
     if (tool === "text") {
       const t = prompt("Enter text:");
@@ -411,15 +491,42 @@ export default function SharedCanvasPage() {
     a.click();
   }
 
+  function handleSavePDF(name: string) {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    // Create a new canvas with white background for PDF
+    const tempCanvas = document.createElement('canvas');
+    const tempCtx = tempCanvas.getContext('2d');
+    if (!tempCtx) return;
+    
+    tempCanvas.width = canvas.width;
+    tempCanvas.height = canvas.height;
+    
+    // Fill with white background
+    tempCtx.fillStyle = '#ffffff';
+    tempCtx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw the original canvas on top
+    tempCtx.drawImage(canvas, 0, 0);
+    
+    // Convert to data URL and download
+    const url = tempCanvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name;
+    a.click();
+  }
+
   // Keyboard shortcuts
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       const k = e.key.toLowerCase();
-      if (k === "b") setTool("brush");
-      else if (k === "p") setTool("pencil");
-      else if (k === "e") setTool("eraser");
-      else if (k === "f") setTool("bucket");
-      else if (k === "t") setTool("text");
+      if (k === "1") setTool("brush");
+      else if (k === "2") setTool("pencil");
+      else if (k === "3") setTool("eraser");
+      else if (k === "4") setTool("bucket");
+      else if (k === "5") setTool("text");
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
@@ -588,6 +695,14 @@ export default function SharedCanvasPage() {
               style={{ background: "#38bdf8", color: "#181f2a", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 700, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #38bdf8" }}
               onClick={() => handleSave("image/png", "artwork.png")}
             >Save PNG</button>
+            <button
+              style={{ background: "#38bdf8", color: "#181f2a", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 700, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #38bdf8" }}
+              onClick={() => handleSave("image/jpeg", "artwork.jpg")}
+            >Save JPEG</button>
+            <button
+              style={{ background: "#9333ea", color: "#fff", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 700, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #9333ea" }}
+              onClick={() => handleSavePDF("artwork.pdf")}
+            >Save PDF</button>
           </div>
           
           <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, fontWeight: 500 }}>
