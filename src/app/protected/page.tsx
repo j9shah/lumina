@@ -24,23 +24,56 @@ export default function ProtectedPage() {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d", { willReadFrequently: true });
-      function resizeCanvas() {
-        const dpr = Math.max(1, window.devicePixelRatio || 1);
-        const w = window.innerWidth;
-        const h = window.innerHeight;
-        canvas.width = Math.floor(w * dpr);
-        canvas.height = Math.floor(h * dpr);
-        canvas.style.width = w + "px";
-        canvas.style.height = h + "px";
-        ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
-        if (ctx) {
-          ctx.fillStyle = "#ffffff";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
+    
+    function resizeCanvas() {
+      if (!canvas) return;
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      
+      // Get the container dimensions instead of full window
+      const container = canvas.parentElement;
+      if (!container) return;
+      
+      const containerRect = container.getBoundingClientRect();
+      const w = containerRect.width * 0.95; // Slightly smaller to account for borders
+      const h = containerRect.height * 0.95; // Slightly smaller to account for borders
+      
+      // Set canvas internal resolution
+      canvas.width = Math.floor(w * dpr);
+      canvas.height = Math.floor(h * dpr);
+      
+      // Set canvas display size
+      canvas.style.width = w + "px";
+      canvas.style.height = h + "px";
+      
+      // Scale the context to match device pixel ratio
+      ctx?.setTransform(dpr, 0, 0, dpr, 0, 0);
+      
+      if (ctx) {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, w, h);
+        ctx.imageSmoothingEnabled = false;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+      }
     }
+    
+    // Use ResizeObserver for better container size detection
+    const resizeObserver = new ResizeObserver(() => {
+      resizeCanvas();
+    });
+    
+    const container = canvas.parentElement;
+    if (container) {
+      resizeObserver.observe(container);
+    }
+    
     window.addEventListener("resize", resizeCanvas);
     resizeCanvas();
-    return () => window.removeEventListener("resize", resizeCanvas);
+    
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
+      resizeObserver.disconnect();
+    };
   }, []);
 
   // Drawing logic
@@ -66,18 +99,25 @@ export default function ProtectedPage() {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     const p = getPos(e);
+    
+    console.log("Mouse down at:", p); // Debug log
+    
     if (tool === "bucket") {
       if (!canvas || !ctx) return;
       // --- Bucket fill implementation ---
-      const tol = 24, dpr = Math.max(1, window.devicePixelRatio || 1);
-      const x0 = Math.floor(p.x*dpr), y0 = Math.floor(p.y*dpr);
-      const w = Math.floor(canvas.clientWidth*dpr), h = Math.floor(canvas.clientHeight*dpr);
-      const img = ctx.getImageData(0,0,w,h), data = img.data;
+      const tol = 24;
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.max(1, window.devicePixelRatio || 1);
+      const x0 = Math.floor(p.x * dpr), y0 = Math.floor(p.y * dpr);
+      const w = canvas.width, h = canvas.height;
+      const img = ctx.getImageData(0, 0, w, h), data = img.data;
       const i0 = (y0*w + x0)*4, target = [data[i0],data[i0+1],data[i0+2],data[i0+3]], fillc = hex2rgba(color);
       if (same(target, fillc)) return;
       const stack=[[x0,y0]];
       while(stack.length){
-        let pt=stack.pop(), x=pt[0], y=pt[1];
+        let pt=stack.pop();
+        if (!pt) continue;
+        let x=pt[0], y=pt[1];
         while(x>=0 && near(x,y)) x--; x++;
         let up=false, dn=false;
         while(x<w && near(x,y)){
@@ -105,8 +145,27 @@ export default function ProtectedPage() {
     }
     setDrawing(true);
     setLastPos(p);
-    ctx?.beginPath();
-    ctx?.moveTo(p.x, p.y);
+    
+    if (ctx) {
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      
+      // Draw a small dot for single clicks - but only for brush and pencil tools
+      if (tool === "brush" || tool === "pencil") {
+        ctx.globalCompositeOperation = "source-over";
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, size/2, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (tool === "eraser") {
+        // For eraser, create a small erased area for single clicks
+        ctx.globalCompositeOperation = "destination-out";
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, size/2, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    
     e.preventDefault();
   }
 
@@ -116,6 +175,9 @@ export default function ProtectedPage() {
     const ctx = canvas?.getContext("2d");
     const p = getPos(e);
     if (!ctx || !lastPos) return;
+    
+    console.log("Drawing line from", lastPos, "to", p); // Debug log
+    
     if (tool === "eraser") {
       ctx.globalCompositeOperation = "destination-out";
       ctx.lineCap = "round";
@@ -185,8 +247,58 @@ export default function ProtectedPage() {
   }, []);
 
   return (
-    <div style={{ display: "flex", minHeight: "100vh", background: "#181f2a", padding: 0 }}>
-      <aside style={{ width: 260, minWidth: 220, background: "#232b3a", borderRight: "1px solid #232b3a", padding: 24, display: "flex", flexDirection: "column", gap: 24, boxShadow: "2px 0 16px 0 #0002" }}>
+    <>
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .mobile-sidebar {
+            width: 200px !important;
+            min-width: 180px !important;
+            padding: 16px !important;
+          }
+          .mobile-main {
+            padding: 8px !important;
+          }
+          .mobile-canvas-container {
+            border-radius: 12px !important;
+            padding: 1% !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .mobile-sidebar {
+            width: 160px !important;
+            min-width: 140px !important;
+            padding: 12px !important;
+          }
+          .mobile-main {
+            padding: 4px !important;
+          }
+        }
+      `}</style>
+      <div style={{ 
+        display: "flex", 
+        minHeight: "calc(100vh - 60px)", 
+        height: "calc(100vh - 60px)",
+        background: "#181f2a", 
+        padding: 0, 
+        overflow: "hidden",
+        position: "fixed",
+        top: "60px",
+        left: 0,
+        right: 0,
+        bottom: 0
+      }}>
+        <aside className="mobile-sidebar" style={{ 
+          width: "min(260px, 25vw)", 
+          minWidth: 220, 
+          background: "#232b3a", 
+          borderRight: "1px solid #232b3a", 
+          padding: 24, 
+          display: "flex", 
+          flexDirection: "column", 
+          gap: 24, 
+          boxShadow: "2px 0 16px 0 #0002",
+          overflowY: "auto" 
+        }}>
         <h1 style={{ margin: "0 0 12px", fontSize: 22, color: "#fff", fontWeight: 700, letterSpacing: 1 }}>Lumina Paint</h1>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {TOOLS.map(t => (
@@ -201,7 +313,7 @@ export default function ProtectedPage() {
                 color: tool === t.key ? "#fff" : "#cbd5e1",
                 fontSize: 16,
                 fontWeight: 500,
-                cursor: tool === t.key ? "pointer" : "pointer",
+                cursor: "pointer",
                 boxShadow: tool === t.key ? "0 2px 8px #0003" : "none",
                 marginBottom: 4,
                 outline: tool === t.key ? "2px solid #38bdf8" : "none",
@@ -269,12 +381,41 @@ export default function ProtectedPage() {
         </div>
         <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, fontWeight: 500 }}>Tip: B/P/E/F/T to switch tools.</p>
       </aside>
-      <main style={{ flex: 1, padding: 32, background: "#181f2a", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: "100%", maxWidth: 1200, height: "80vh", background: "#232b3a", borderRadius: 24, boxShadow: "0 4px 32px #0004", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <main className="mobile-main" style={{ 
+          flex: 1, 
+          padding: "min(16px, 1vw)", 
+          background: "#181f2a", 
+          display: "flex", 
+          alignItems: "center", 
+          justifyContent: "center",
+          height: "100%",
+          overflow: "hidden"
+        }}>
+          <div className="mobile-canvas-container" style={{ 
+            width: "100%", 
+            height: "100%", 
+            background: "#232b3a", 
+            borderRadius: 24, 
+            boxShadow: "0 4px 32px #0004", 
+            display: "flex", 
+            alignItems: "center", 
+            justifyContent: "center",
+            padding: "2%"
+          }}>
           <canvas
             ref={canvasRef}
             id="canvas"
-            style={{ width: "96%", height: "96%", minHeight: 600, minWidth: 900, background: "#fff", border: "2px solid #38bdf8", borderRadius: 18, display: "block", touchAction: "none", boxShadow: "0 2px 16px #38bdf8" }}
+            style={{ 
+              width: "100%", 
+              height: "100%", 
+              background: "#fff", 
+              border: "2px solid #38bdf8", 
+              borderRadius: 18, 
+              display: "block", 
+              touchAction: "none", 
+              boxShadow: "0 2px 16px #38bdf8",
+              cursor: tool === "brush" ? "crosshair" : tool === "eraser" ? "grab" : "pointer"
+            }}
             onMouseDown={handleDown}
             onMouseMove={handleMove}
             onMouseUp={handleUp}
@@ -286,5 +427,6 @@ export default function ProtectedPage() {
         </div>
       </main>
     </div>
+    </>
   );
 }
