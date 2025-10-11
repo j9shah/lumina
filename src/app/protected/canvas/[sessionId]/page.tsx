@@ -1,8 +1,10 @@
 "use client";
+// imports for react and supabase
 import React, { useRef, useEffect, useState } from "react";
 import { createClient } from '@/lib/supabase/client';
 import { useParams } from 'next/navigation';
 
+// drawing tools available
 const TOOLS = [
   { key: "brush", label: "Brush" },
   { key: "pencil", label: "Pencil" },
@@ -11,6 +13,7 @@ const TOOLS = [
   { key: "text", label: "Text" },
 ];
 
+// types for real-time events
 interface DrawingEvent {
   type: 'draw' | 'erase' | 'clear' | 'text' | 'bucket' | 'textbox_create' | 'textbox_update' | 'textbox_delete' | 'undo' | 'redo';
   data: any;
@@ -18,6 +21,7 @@ interface DrawingEvent {
   timestamp: number;
 }
 
+// cursor data for other users
 interface UserCursor {
   x: number;
   y: number;
@@ -33,7 +37,7 @@ export default function SharedCanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const supabase = createClient();
   
-  // Drawing state
+  // current drawing settings
   const [tool, setTool] = useState<string>("brush");
   const [color, setColor] = useState<string>("#000000");
   const [size, setSize] = useState<number>(8);
@@ -41,13 +45,13 @@ export default function SharedCanvasPage() {
   const [drawing, setDrawing] = useState<boolean>(false);
   const [lastPos, setLastPos] = useState<{x:number, y:number}|null>(null);
   
-  // Collaboration state
+  // real-time collaboration stuff
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [cursors, setCursors] = useState<Map<string, UserCursor>>(new Map());
   const [connectedUsers, setConnectedUsers] = useState<Set<string>>(new Set());
   const [channel, setChannel] = useState<any>(null);
   
-  // Text box state
+  // text boxes that can be edited
   const [textBoxes, setTextBoxes] = useState<Array<{
     id: string;
     x: number;
@@ -63,7 +67,7 @@ export default function SharedCanvasPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState<{x: number, y: number}>({x: 0, y: 0});
   
-  // Undo/Redo state
+  // undo redo system
   const [history, setHistory] = useState<Array<{
     canvasData: string;
     textBoxes: typeof textBoxes;
@@ -71,7 +75,7 @@ export default function SharedCanvasPage() {
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [isUndoRedo, setIsUndoRedo] = useState(false);
 
-  // Initialize user and real-time connection
+  // setup real-time connection on load
   useEffect(() => {
     const initializeCollaboration = async () => {
       // Get current user
@@ -207,7 +211,7 @@ export default function SharedCanvasPage() {
     };
   }, []);
 
-  // Handle remote drawing events
+  // handle drawing from other users
   const handleRemoteDrawing = (event: DrawingEvent) => {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -240,7 +244,7 @@ export default function SharedCanvasPage() {
         
       case 'bucket':
         if (event.data.pos && event.data.color) {
-          // Perform bucket fill at the remote position
+          // bucket fill from another user
           const tol = 24;
           const dpr = Math.max(1, window.devicePixelRatio || 1);
           const x0 = Math.floor(event.data.pos.x * dpr), y0 = Math.floor(event.data.pos.y * dpr);
@@ -342,7 +346,7 @@ export default function SharedCanvasPage() {
     }
   };
 
-  // Drawing functions
+  // mouse/touch position helpers
   function getPos(e: React.MouseEvent | React.TouchEvent) {
     const canvas = canvasRef.current;
     if (!canvas) return {x:0, y:0};
@@ -363,16 +367,18 @@ export default function SharedCanvasPage() {
 
   const [currentPath, setCurrentPath] = useState<{x: number, y: number}[]>([]);
 
+  // when user starts drawing
   function handleDown(e: React.MouseEvent | React.TouchEvent) {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
     const p = getPos(e);
     
-    // Deselect text box when clicking on canvas (unless in text mode)
+    // click away from text boxes unless using text tool
     if (tool !== "text") {
       setSelectedTextBox(null);
     }
     
+    // bucket fill tool
     if (tool === "bucket") {
       if (!canvas || !ctx) return;
       // Bucket fill implementation
@@ -424,8 +430,9 @@ export default function SharedCanvasPage() {
       return;
     }
     
+    // text tool creates editable text boxes
     if (tool === "text") {
-      // Create a new text box instead of drawing directly
+      // make new text box
       const newTextBox = {
         id: `text_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
         x: p.x,
@@ -485,10 +492,11 @@ export default function SharedCanvasPage() {
     e.preventDefault();
   }
 
+  // while user is drawing
   function handleMove(e: React.MouseEvent | React.TouchEvent) {
     const p = getPos(e);
     
-    // Always broadcast cursor position
+    // send cursor position to other users
     if (channel && currentUser) {
       channel.send({
         type: 'broadcast',
@@ -504,6 +512,7 @@ export default function SharedCanvasPage() {
       });
     }
     
+    // only draw if mouse is down
     if (!drawing) return;
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -511,6 +520,7 @@ export default function SharedCanvasPage() {
     
     setCurrentPath(prev => [...prev, p]);
     
+    // different tools have different styles
     if (tool === "eraser") {
       ctx.globalCompositeOperation = "destination-out";
       ctx.lineCap = "round";
@@ -537,6 +547,7 @@ export default function SharedCanvasPage() {
     e.preventDefault();
   }
 
+  // when user stops drawing
   function handleUp() {
     if (!drawing) return;
     setDrawing(false);
@@ -563,6 +574,7 @@ export default function SharedCanvasPage() {
     setCurrentPath([]);
   }
 
+  // clear everything
   function handleClear() {
     const canvas = canvasRef.current;
     const ctx = canvas?.getContext("2d");
@@ -590,6 +602,7 @@ export default function SharedCanvasPage() {
     }
   }
 
+  // save as png or jpg
   function handleSave(mime: string, name: string) {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -600,11 +613,12 @@ export default function SharedCanvasPage() {
     a.click();
   }
 
+  // save as pdf (currently just saves as png with pdf name)
   function handleSavePDF(name: string) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    // Create a new canvas with white background for PDF
+    // make temp canvas with white background
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
     if (!tempCtx) return;
@@ -612,14 +626,14 @@ export default function SharedCanvasPage() {
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
     
-    // Fill with white background
+    // white background
     tempCtx.fillStyle = '#ffffff';
     tempCtx.fillRect(0, 0, canvas.width, canvas.height);
     
-    // Draw the original canvas on top
+    // copy main canvas
     tempCtx.drawImage(canvas, 0, 0);
     
-    // Convert to data URL and download
+    // download as png
     const url = tempCanvas.toDataURL("image/png");
     const a = document.createElement("a");
     a.href = url;
@@ -627,7 +641,7 @@ export default function SharedCanvasPage() {
     a.click();
   }
 
-  // Text box functions
+  // text box editing functions
   const updateTextBox = (id: string, updates: Partial<typeof textBoxes[0]>) => {
     setTextBoxes(prev => prev.map(box => 
       box.id === id ? { ...box, ...updates } : box
@@ -703,9 +717,9 @@ export default function SharedCanvasPage() {
     setIsDragging(false);
   };
 
-  // Undo/Redo functions
+  // undo redo system
   const saveToHistory = () => {
-    if (isUndoRedo) return; // Don't save during undo/redo operations
+    if (isUndoRedo) return; // don't save during undo/redo
     
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -716,11 +730,11 @@ export default function SharedCanvasPage() {
       textBoxes: [...textBoxes]
     };
     
-    // Remove any history after current index (when we're in the middle of history)
+    // cut off future history if we're in the middle
     const newHistory = history.slice(0, historyIndex + 1);
     newHistory.push(newState);
     
-    // Limit history to last 50 states
+    // keep only last 50 steps
     if (newHistory.length > 50) {
       newHistory.shift();
     } else {
@@ -806,24 +820,24 @@ export default function SharedCanvasPage() {
     }
   };
 
-  // Keyboard shortcuts
+  // keyboard shortcuts
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
-      // Prevent shortcuts when typing in text boxes
+      // don't trigger shortcuts while typing
       if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) {
         return;
       }
       
       const k = e.key.toLowerCase();
       
-      // Tool shortcuts
+      // number keys switch tools
       if (k === "1") setTool("brush");
       else if (k === "2") setTool("pencil");
       else if (k === "3") setTool("eraser");
       else if (k === "4") setTool("bucket");
       else if (k === "5") setTool("text");
       
-      // Undo/Redo shortcuts
+      // ctrl+z for undo, ctrl+y for redo
       else if ((e.ctrlKey || e.metaKey) && k === "z" && !e.shiftKey) {
         e.preventDefault();
         undo();
@@ -837,6 +851,7 @@ export default function SharedCanvasPage() {
     return () => window.removeEventListener("keydown", handleKey);
   }, [historyIndex, history]);
 
+  // main ui
   return (
     <>
       <style jsx>{`
