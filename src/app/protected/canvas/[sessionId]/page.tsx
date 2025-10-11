@@ -909,13 +909,17 @@ export default function SharedCanvasPage() {
                 key={t.key}
                 style={{
                   padding: "12px 14px",
-                  border: "1px solid #ccc",
-                  background: tool === t.key ? "#4a90e2" : "#fff",
-                  color: tool === t.key ? "#fff" : "#333",
-                  fontSize: 16,
-                  fontWeight: 'normal',
+                  borderRadius: 16, // Rounded corners
+                  border: "none",
+                  background: tool === t.key ? "#6396e8" : "#fff",
+                  color: tool === t.key ? "#fff" : "#222",
+                  fontSize: 20,
+                  fontWeight: 500,
                   cursor: "pointer",
-                  marginBottom: 4,
+                  marginBottom: 12,
+                  outline: tool === t.key ? "2px solid #6396e8" : "none",
+                  boxShadow: tool === t.key ? "0 2px 8px #6396e8" : "0 1px 4px #e0e0e0",
+                  transition: "all 0.2s",
                 }}
                 onClick={() => setTool(t.key)}
                 title={t.label}
@@ -967,15 +971,17 @@ export default function SharedCanvasPage() {
           
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <button
-              style={{ 
-                background: "#4a90e2", 
-                color: "#fff", 
-                border: "1px solid #4a90e2", 
-                padding: "12px 14px", 
-                fontSize: 16, 
-                fontWeight: 'normal', 
-                cursor: "pointer", 
-                marginBottom: 4
+              style={{
+                background: "#6396e8",
+                color: "#fff",
+                border: "none",
+                borderRadius: 16, // Rounded
+                padding: "12px 14px",
+                fontSize: 20,
+                fontWeight: 700,
+                cursor: "pointer",
+                marginBottom: 12,
+                boxShadow: "0 2px 8px #6396e8"
               }}
               onClick={() => {
                 const url = window.location.href;
@@ -989,15 +995,17 @@ export default function SharedCanvasPage() {
             
             <div style={{ display: "flex", gap: "8px" }}>
               <button
-                style={{ 
-                  background: historyIndex > 0 ? "#4a90e2" : "#ccc", 
-                  color: "#fff", 
-                  border: "1px solid #ccc", 
-                  padding: "8px 12px", 
-                  fontSize: 14, 
-                  fontWeight: 'normal', 
-                  cursor: historyIndex > 0 ? "pointer" : "not-allowed", 
-                  flex: 1
+                style={{
+                  background: historyIndex > 0 ? "#b0b8c1" : "#e0e0e0",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 16, // Rounded
+                  padding: "8px 12px",
+                  fontSize: 16,
+                  fontWeight: 600,
+                  cursor: historyIndex > 0 ? "pointer" : "not-allowed",
+                  flex: 1,
+                  boxShadow: "0 2px 4px #e0e0e0"
                 }}
                 onClick={undo}
                 disabled={historyIndex <= 0}
@@ -1006,15 +1014,17 @@ export default function SharedCanvasPage() {
                 Undo
               </button>
               <button
-                style={{ 
-                  background: historyIndex < history.length - 1 ? "#4a90e2" : "#ccc", 
-                  color: "#fff", 
-                  border: "1px solid #ccc", 
-                  padding: "8px 12px", 
-                  fontSize: 14, 
-                  fontWeight: 'normal', 
-                  cursor: historyIndex < history.length - 1 ? "pointer" : "not-allowed", 
-                  flex: 1
+                style={{
+                  background: historyIndex < history.length - 1 ? "#b0b8c1" : "#e0e0e0",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: 16, // Rounded
+                  padding: "8px 12px",
+                  fontSize: 16,
+                  fontWeight: 600,
+                  cursor: historyIndex < history.length - 1 ? "pointer" : "not-allowed",
+                  flex: 1,
+                  boxShadow: "0 2px 4px #e0e0e0"
                 }}
                 onClick={redo}
                 disabled={historyIndex >= history.length - 1}
@@ -1025,19 +1035,19 @@ export default function SharedCanvasPage() {
             </div>
             
             <button
-              style={{ background: "#fff", color: "#333", border: "1px solid #ccc", padding: "12px 14px", fontSize: 16, fontWeight: 'normal', cursor: "pointer", marginBottom: 4 }}
+              style={{ background: "#fff", color: "#222", border: "none", borderRadius: 16, padding: "12px 14px", fontSize: 20, fontWeight: 500, cursor: "pointer", marginBottom: 12, boxShadow: "0 1px 4px #e0e0e0" }}
               onClick={handleClear}
             >Clear</button>
             <button
-              style={{ background: "#4a90e2", color: "#fff", border: "1px solid #4a90e2", padding: "12px 14px", fontSize: 16, fontWeight: 'normal', cursor: "pointer", marginBottom: 4 }}
+              style={{ background: "#6396e8", color: "#fff", border: "none", borderRadius: 16, padding: "12px 14px", fontSize: 20, fontWeight: 700, cursor: "pointer", marginBottom: 12, boxShadow: "0 2px 8px #6396e8" }}
               onClick={() => handleSave("image/png", "artwork.png")}
             >Save PNG</button>
             <button
-              style={{ background: "#4a90e2", color: "#fff", border: "1px solid #4a90e2", padding: "12px 14px", fontSize: 16, fontWeight: 'normal', cursor: "pointer", marginBottom: 4 }}
+              style={{ background: "#6396e8", color: "#fff", border: "none", borderRadius: 16, padding: "12px 14px", fontSize: 20, fontWeight: 700, cursor: "pointer", marginBottom: 12, boxShadow: "0 2px 8px #6396e8" }}
               onClick={() => handleSave("image/jpeg", "artwork.jpg")}
             >Save JPEG</button>
             <button
-              style={{ background: "#4a90e2", color: "#fff", border: "1px solid #4a90e2", padding: "12px 14px", fontSize: 16, fontWeight: 'normal', cursor: "pointer", marginBottom: 4 }}
+              style={{ background: "#6396e8", color: "#fff", border: "none", borderRadius: 16, padding: "12px 14px", fontSize: 20, fontWeight: 700, cursor: "pointer", marginBottom: 12, boxShadow: "0 2px 8px #6396e8" }}
               onClick={() => handleSavePDF("artwork.pdf")}
             >Save PDF</button>
           </div>

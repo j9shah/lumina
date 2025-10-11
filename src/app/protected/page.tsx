@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState, useEffect } from "react";
 import { createClient } from '@/lib/supabase/client';
@@ -44,18 +43,18 @@ export default function ProtectedPage() {
   return (
     <div style={{
       minHeight: "calc(100vh - 60px)",
-      background: "#f5f5f5",
-      padding: "2rem",
-      fontFamily: "Arial, sans-serif"
+      background: "#e3e5ea", // Slightly darker cozy grey
+      padding: "4rem 0 0 6vw",
+      display: "block"
     }}>
       <div style={{
-        maxWidth: '900px',
-        margin: '0 auto',
-        background: '#ffffff',
-        border: '1px solid #ddd',
-        borderRadius: '4px',
-        padding: '2rem',
-        boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+        maxWidth: '1200px',
+        width: '100%',
+        background: 'none',
+        borderRadius: '0',
+        padding: '0',
+        boxShadow: 'none',
+        textAlign: 'left'
       }}>
         {user && (
           <div style={{
@@ -71,32 +70,45 @@ export default function ProtectedPage() {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start' }}>
-          {/* Create New Session */}
+        <div style={{
+          display: 'flex',
+          gap: '2rem',
+          alignItems: 'stretch',
+          justifyContent: 'center',
+          flexWrap: 'wrap',
+        }}>
+          {/* Create New Session Card */}
           <div style={{
-            flex: 1,
-            border: '1px solid #ccc',
-            borderRadius: '3px',
-            padding: '1.5rem',
-            background: '#fafafa'
+            flex: '1 1 480px',
+            maxWidth: '540px',
+            minWidth: '340px',
+            background: '#f6f7fa',
+            borderRadius: '32px',
+            padding: '2.5rem',
+            boxShadow: '0 2px 16px #cfd2d6',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#333', fontSize: '18px', fontWeight: 'bold' }}>
+            <h3 style={{ margin: '0 0 1.5rem 0', color: '#2d7a46', fontSize: '2.2rem', fontWeight: 700 }}>
               Start New Session
             </h3>
-            <p style={{ color: '#666', margin: '0 0 1.5rem 0', fontSize: '14px', lineHeight: '1.4' }}>
+            <p style={{ color: '#555', margin: '0 0 2rem 0', fontSize: '1.2rem' }}>
               Create a fresh canvas and invite others to collaborate
             </p>
             <button
               onClick={createNewSession}
               style={{
-                background: '#4a90e2',
+                background: '#2d7a46',
                 color: '#fff',
                 border: 'none',
-                borderRadius: '3px',
-                padding: '10px 20px',
-                fontSize: '14px',
-                fontWeight: 'normal',
+                borderRadius: '32px',
+                padding: '20px 0',
+                fontSize: '1.3rem',
+                fontWeight: 700,
                 cursor: 'pointer',
+                boxShadow: '0 2px 8px #cfd2d6',
                 width: '100%'
               }}
             >
@@ -104,18 +116,24 @@ export default function ProtectedPage() {
             </button>
           </div>
 
-          {/* Join Existing Session */}
+          {/* Join Existing Session Card */}
           <div style={{
-            flex: 1,
-            border: '1px solid #ccc',
-            borderRadius: '3px',
-            padding: '1.5rem',
-            background: '#fafafa'
+            flex: '1 1 480px',
+            maxWidth: '540px',
+            minWidth: '340px',
+            background: '#f6f7fa',
+            borderRadius: '32px',
+            padding: '2.5rem',
+            boxShadow: '0 2px 16px #cfd2d6',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
           }}>
-            <h3 style={{ margin: '0 0 1rem 0', color: '#333', fontSize: '18px', fontWeight: 'bold' }}>
+            <h3 style={{ margin: '0 0 1.5rem 0', color: '#38bdf8', fontSize: '2.2rem', fontWeight: 700 }}>
               Join Existing Session
             </h3>
-            <p style={{ color: '#666', margin: '0 0 1.5rem 0', fontSize: '14px', lineHeight: '1.4' }}>
+            <p style={{ color: '#555', margin: '0 0 2rem 0', fontSize: '1.2rem' }}>
               Enter a session ID to join someone else's canvas
             </p>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -139,14 +157,16 @@ export default function ProtectedPage() {
                 onClick={joinSession}
                 disabled={!sessionId.trim()}
                 style={{
-                  background: sessionId.trim() ? '#4a90e2' : '#ccc',
+                  background: sessionId.trim() ? '#38bdf8' : '#b0b8c1',
                   color: '#fff',
-                  border: '1px solid #ccc',
-                  padding: '12px',
-                  fontSize: '1rem',
-                  fontWeight: 'normal',
+                  border: 'none',
+                  borderRadius: '32px',
+                  padding: '18px 0',
+                  fontSize: '1.1rem',
+                  fontWeight: 700,
                   cursor: sessionId.trim() ? 'pointer' : 'not-allowed',
-                  width: '100%'
+                  width: '100%',
+                  boxShadow: '0 2px 8px #cfd2d6'
                 }}
               >
                 Join
