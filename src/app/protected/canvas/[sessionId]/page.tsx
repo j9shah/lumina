@@ -918,7 +918,7 @@ export default function SharedCanvasPage() {
               Session: {sessionId}
             </div>
             <div style={{ fontSize: 12, color: "#4a90e2", marginBottom: 16 }}>
-              👥 {connectedUsers.size} user{connectedUsers.size !== 1 ? 's' : ''} online
+              {connectedUsers.size} user{connectedUsers.size !== 1 ? 's' : ''} online
             </div>
           </div>
           
@@ -928,17 +928,13 @@ export default function SharedCanvasPage() {
                 key={t.key}
                 style={{
                   padding: "12px 14px",
-                  borderRadius: 16, // Rounded corners
-                  border: "none",
-                  background: tool === t.key ? "#6396e8" : "#fff",
-                  color: tool === t.key ? "#fff" : "#222",
-                  fontSize: 20,
-                  fontWeight: 500,
+                  border: "1px solid #ccc",
+                  background: tool === t.key ? "#4a90e2" : "#fff",
+                  color: tool === t.key ? "#fff" : "#333",
+                  fontSize: 16,
+                  fontWeight: 'normal',
                   cursor: "pointer",
-                  marginBottom: 12,
-                  outline: tool === t.key ? "2px solid #6396e8" : "none",
-                  boxShadow: tool === t.key ? "0 2px 8px #6396e8" : "0 1px 4px #e0e0e0",
-                  transition: "all 0.2s",
+                  marginBottom: 4,
                 }}
                 onClick={() => setTool(t.key)}
                 title={t.label}
