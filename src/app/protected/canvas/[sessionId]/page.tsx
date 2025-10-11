@@ -1073,14 +1073,16 @@ export default function SharedCanvasPage() {
             <canvas
               ref={canvasRef}
               id="canvas"
-              style={{ 
-                width: "100%", 
-                height: "100%", 
-                background: "#fff", 
-                border: "1px solid #ccc", 
-                display: "block", 
+              style={{
+                width: "100%",
+                height: "100%",
+                background: "#fff",
+                border: "2px solid #38bdf8",
+                borderRadius: 18,
+                display: "block",
                 touchAction: "none",
-                cursor: tool === "brush" ? "crosshair" : tool === "eraser" ? "grab" : "pointer"
+                boxShadow: "0 2px 16px #38bdf8",
+                cursor: `url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 height=%2232%22 width=%2232%22><text y=%2224%22 font-size=%2224%22>${getToolEmoji(tool)}</text></svg>') 16 16, pointer`
               }}
               onMouseDown={handleDown}
               onMouseMove={(e) => {
@@ -1260,11 +1262,11 @@ export default function SharedCanvasPage() {
 
 function getToolEmoji(tool: string): string {
   switch (tool) {
-    case 'brush': return 'B';
-    case 'pencil': return 'P';
-    case 'eraser': return 'E';
-    case 'bucket': return 'F';
-    case 'text': return 'T';
-    default: return 'B';
+    case 'brush': return '🖌️';
+    case 'pencil': return '✏️';
+    case 'eraser': return '🧽'; // Eraser emoji
+    case 'bucket': return '🪣';
+    case 'text': return '🅣';
+    default: return '🖌️';
   }
 }
