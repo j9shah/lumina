@@ -12,7 +12,7 @@ const TOOLS = [
 ];
 
 interface DrawingEvent {
-  type: 'draw' | 'erase' | 'clear' | 'text' | 'bucket';
+  type: 'draw' | 'erase' | 'clear' | 'text' | 'bucket' | 'textbox_create' | 'textbox_update' | 'textbox_delete' | 'undo' | 'redo';
   data: any;
   user: string;
   timestamp: number;
@@ -46,6 +46,30 @@ export default function SharedCanvasPage() {
   const [cursors, setCursors] = useState<Map<string, UserCursor>>(new Map());
   const [connectedUsers, setConnectedUsers] = useState<Set<string>>(new Set());
   const [channel, setChannel] = useState<any>(null);
+  
+  // Text box state
+  const [textBoxes, setTextBoxes] = useState<Array<{
+    id: string;
+    x: number;
+    y: number;
+    text: string;
+    color: string;
+    fontSize: number;
+    isEditing: boolean;
+    width: number;
+    height: number;
+  }>>([]);
+  const [selectedTextBox, setSelectedTextBox] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragOffset, setDragOffset] = useState<{x: number, y: number}>({x: 0, y: 0});
+  
+  // Undo/Redo state
+  const [history, setHistory] = useState<Array<{
+    canvasData: string;
+    textBoxes: typeof textBoxes;
+  }>>([]);
+  const [historyIndex, setHistoryIndex] = useState(-1);
+  const [isUndoRedo, setIsUndoRedo] = useState(false);
 
   // Initialize user and real-time connection
   useEffect(() => {
@@ -155,6 +179,13 @@ export default function SharedCanvasPage() {
         ctx.imageSmoothingEnabled = false;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
+        
+        // Save initial state to history
+        setTimeout(() => {
+          const canvasData = canvas.toDataURL();
+          setHistory([{ canvasData, textBoxes: [] }]);
+          setHistoryIndex(0);
+        }, 100);
       }
     }
     
@@ -240,10 +271,63 @@ export default function SharedCanvasPage() {
         }
         break;
         
+      case 'textbox_create':
+        if (event.data) {
+          setTextBoxes(prev => [...prev, event.data]);
+        }
+        break;
+        
+      case 'textbox_update':
+        if (event.data) {
+          setTextBoxes(prev => prev.map(box => 
+            box.id === event.data.id ? event.data : box
+          ));
+        }
+        break;
+        
+      case 'textbox_delete':
+        if (event.data && event.data.id) {
+          setTextBoxes(prev => prev.filter(box => box.id !== event.data.id));
+        }
+        break;
+        
+      case 'undo':
+        if (event.data) {
+          setIsUndoRedo(true);
+          // Restore canvas
+          const undoImg = new Image();
+          undoImg.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(undoImg, 0, 0);
+            setIsUndoRedo(false);
+          };
+          undoImg.src = event.data.canvasData;
+          // Restore text boxes
+          setTextBoxes(event.data.textBoxes);
+        }
+        break;
+        
+      case 'redo':
+        if (event.data) {
+          setIsUndoRedo(true);
+          // Restore canvas
+          const redoImg = new Image();
+          redoImg.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(redoImg, 0, 0);
+            setIsUndoRedo(false);
+          };
+          redoImg.src = event.data.canvasData;
+          // Restore text boxes
+          setTextBoxes(event.data.textBoxes);
+        }
+        break;
+        
       case 'clear':
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
+        setTextBoxes([]); // Clear text boxes too
         break;
         
       case 'text':
@@ -284,6 +368,11 @@ export default function SharedCanvasPage() {
     const ctx = canvas?.getContext("2d");
     const p = getPos(e);
     
+    // Deselect text box when clicking on canvas (unless in text mode)
+    if (tool !== "text") {
+      setSelectedTextBox(null);
+    }
+    
     if (tool === "bucket") {
       if (!canvas || !ctx) return;
       // Bucket fill implementation
@@ -309,6 +398,10 @@ export default function SharedCanvasPage() {
         }
       }
       ctx.putImageData(img,0,0);
+      
+      // Save to history after bucket fill
+      setTimeout(() => saveToHistory(), 100);
+      
       function idx(x:number,y:number){ return (y*w + x)*4; }
       function setp(x:number,y:number,c:number[]){ var i=idx(x,y); data[i]=c[0]; data[i+1]=c[1]; data[i+2]=c[2]; data[i+3]=255; }
       function near(x:number,y:number){ var i=idx(x,y); return Math.abs(data[i]-target[0])<=tol && Math.abs(data[i+1]-target[1])<=tol && Math.abs(data[i+2]-target[2])<=tol && Math.abs(data[i+3]-target[3])<=tol; }
@@ -332,24 +425,33 @@ export default function SharedCanvasPage() {
     }
     
     if (tool === "text") {
-      const t = prompt("Enter text:");
-      if (!t || !ctx) return;
-      ctx.save(); 
-      ctx.globalCompositeOperation = "source-over";
-      ctx.fillStyle = color; 
-      ctx.font = textSize + "px Arial, sans-serif"; 
-      ctx.textBaseline = "top";
-      ctx.fillText(t, p.x, p.y); 
-      ctx.restore();
+      // Create a new text box instead of drawing directly
+      const newTextBox = {
+        id: `text_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        x: p.x,
+        y: p.y,
+        text: "Click to edit text",
+        color: color,
+        fontSize: textSize,
+        isEditing: true,
+        width: 200,
+        height: textSize + 10
+      };
       
-      // Broadcast text event
+      setTextBoxes(prev => [...prev, newTextBox]);
+      setSelectedTextBox(newTextBox.id);
+      
+      // Save to history after text box creation
+      setTimeout(() => saveToHistory(), 100);
+      
+      // Broadcast text box creation event
       if (channel && currentUser) {
         channel.send({
           type: 'broadcast',
           event: 'drawing',
           payload: {
-            type: 'text',
-            data: { pos: p, text: t, color, textSize },
+            type: 'textbox_create',
+            data: newTextBox,
             user: currentUser.id,
             timestamp: Date.now()
           }
@@ -440,6 +542,9 @@ export default function SharedCanvasPage() {
     setDrawing(false);
     setLastPos(null);
     
+    // Save to history after drawing
+    setTimeout(() => saveToHistory(), 100);
+    
     // Broadcast completed path
     if (channel && currentUser && currentPath.length > 0) {
       const eventType = tool === 'eraser' ? 'erase' : 'draw';
@@ -465,6 +570,10 @@ export default function SharedCanvasPage() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    // Clear text boxes
+    setTextBoxes([]);
+    setSelectedTextBox(null);
     
     // Broadcast clear event
     if (channel && currentUser) {
@@ -518,19 +627,215 @@ export default function SharedCanvasPage() {
     a.click();
   }
 
+  // Text box functions
+  const updateTextBox = (id: string, updates: Partial<typeof textBoxes[0]>) => {
+    setTextBoxes(prev => prev.map(box => 
+      box.id === id ? { ...box, ...updates } : box
+    ));
+    
+    // Broadcast text box update
+    if (channel && currentUser) {
+      const updatedBox = textBoxes.find(box => box.id === id);
+      if (updatedBox) {
+        const newBox = { ...updatedBox, ...updates };
+        channel.send({
+          type: 'broadcast',
+          event: 'drawing',
+          payload: {
+            type: 'textbox_update',
+            data: newBox,
+            user: currentUser.id,
+            timestamp: Date.now()
+          }
+        });
+      }
+    }
+  };
+
+  const deleteTextBox = (id: string) => {
+    setTextBoxes(prev => prev.filter(box => box.id !== id));
+    setSelectedTextBox(null);
+    
+    // Broadcast text box deletion
+    if (channel && currentUser) {
+      channel.send({
+        type: 'broadcast',
+        event: 'drawing',
+        payload: {
+          type: 'textbox_delete',
+          data: { id },
+          user: currentUser.id,
+          timestamp: Date.now()
+        }
+      });
+    }
+  };
+
+  const handleTextBoxMouseDown = (e: React.MouseEvent, boxId: string) => {
+    e.stopPropagation();
+    setSelectedTextBox(boxId);
+    setIsDragging(true);
+    
+    const box = textBoxes.find(b => b.id === boxId);
+    if (box) {
+      const rect = (e.target as HTMLElement).getBoundingClientRect();
+      setDragOffset({
+        x: e.clientX - rect.left,
+        y: e.clientY - rect.top
+      });
+    }
+  };
+
+  const handleTextBoxMouseMove = (e: React.MouseEvent) => {
+    if (isDragging && selectedTextBox) {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      
+      const canvasRect = canvas.getBoundingClientRect();
+      const newX = e.clientX - canvasRect.left - dragOffset.x;
+      const newY = e.clientY - canvasRect.top - dragOffset.y;
+      
+      updateTextBox(selectedTextBox, { x: newX, y: newY });
+    }
+  };
+
+  const handleTextBoxMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  // Undo/Redo functions
+  const saveToHistory = () => {
+    if (isUndoRedo) return; // Don't save during undo/redo operations
+    
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const canvasData = canvas.toDataURL();
+    const newState = {
+      canvasData,
+      textBoxes: [...textBoxes]
+    };
+    
+    // Remove any history after current index (when we're in the middle of history)
+    const newHistory = history.slice(0, historyIndex + 1);
+    newHistory.push(newState);
+    
+    // Limit history to last 50 states
+    if (newHistory.length > 50) {
+      newHistory.shift();
+    } else {
+      setHistoryIndex(prev => prev + 1);
+    }
+    
+    setHistory(newHistory);
+  };
+
+  const undo = () => {
+    if (historyIndex <= 0) return;
+    
+    setIsUndoRedo(true);
+    const prevState = history[historyIndex - 1];
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    
+    // Restore canvas
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      setIsUndoRedo(false);
+    };
+    img.src = prevState.canvasData;
+    
+    // Restore text boxes
+    setTextBoxes(prevState.textBoxes);
+    setHistoryIndex(prev => prev - 1);
+    
+    // Broadcast undo to collaborators
+    if (channel && currentUser) {
+      channel.send({
+        type: 'broadcast',
+        event: 'drawing',
+        payload: {
+          type: 'undo',
+          data: { canvasData: prevState.canvasData, textBoxes: prevState.textBoxes },
+          user: currentUser.id,
+          timestamp: Date.now()
+        }
+      });
+    }
+  };
+
+  const redo = () => {
+    if (historyIndex >= history.length - 1) return;
+    
+    setIsUndoRedo(true);
+    const nextState = history[historyIndex + 1];
+    
+    const canvas = canvasRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!canvas || !ctx) return;
+    
+    // Restore canvas
+    const img = new Image();
+    img.onload = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      setIsUndoRedo(false);
+    };
+    img.src = nextState.canvasData;
+    
+    // Restore text boxes
+    setTextBoxes(nextState.textBoxes);
+    setHistoryIndex(prev => prev + 1);
+    
+    // Broadcast redo to collaborators
+    if (channel && currentUser) {
+      channel.send({
+        type: 'broadcast',
+        event: 'drawing',
+        payload: {
+          type: 'redo',
+          data: { canvasData: nextState.canvasData, textBoxes: nextState.textBoxes },
+          user: currentUser.id,
+          timestamp: Date.now()
+        }
+      });
+    }
+  };
+
   // Keyboard shortcuts
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
+      // Prevent shortcuts when typing in text boxes
+      if (e.target instanceof HTMLTextAreaElement || e.target instanceof HTMLInputElement) {
+        return;
+      }
+      
       const k = e.key.toLowerCase();
+      
+      // Tool shortcuts
       if (k === "1") setTool("brush");
       else if (k === "2") setTool("pencil");
       else if (k === "3") setTool("eraser");
       else if (k === "4") setTool("bucket");
       else if (k === "5") setTool("text");
+      
+      // Undo/Redo shortcuts
+      else if ((e.ctrlKey || e.metaKey) && k === "z" && !e.shiftKey) {
+        e.preventDefault();
+        undo();
+      }
+      else if ((e.ctrlKey || e.metaKey) && (k === "y" || (k === "z" && e.shiftKey))) {
+        e.preventDefault();
+        redo();
+      }
     }
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
-  }, []);
+  }, [historyIndex, history]);
 
   return (
     <>
@@ -687,6 +992,48 @@ export default function SharedCanvasPage() {
             >
               🔗 Share Session
             </button>
+            
+            <div style={{ display: "flex", gap: "8px" }}>
+              <button
+                style={{ 
+                  background: historyIndex > 0 ? "#6366f1" : "#4a5568", 
+                  color: "#fff", 
+                  border: "none", 
+                  borderRadius: 8, 
+                  padding: "8px 12px", 
+                  fontSize: 14, 
+                  fontWeight: 600, 
+                  cursor: historyIndex > 0 ? "pointer" : "not-allowed", 
+                  flex: 1,
+                  boxShadow: "0 2px 4px #0002" 
+                }}
+                onClick={undo}
+                disabled={historyIndex <= 0}
+                title="Undo (Ctrl+Z)"
+              >
+                ↶ Undo
+              </button>
+              <button
+                style={{ 
+                  background: historyIndex < history.length - 1 ? "#6366f1" : "#4a5568", 
+                  color: "#fff", 
+                  border: "none", 
+                  borderRadius: 8, 
+                  padding: "8px 12px", 
+                  fontSize: 14, 
+                  fontWeight: 600, 
+                  cursor: historyIndex < history.length - 1 ? "pointer" : "not-allowed", 
+                  flex: 1,
+                  boxShadow: "0 2px 4px #0002" 
+                }}
+                onClick={redo}
+                disabled={historyIndex >= history.length - 1}
+                title="Redo (Ctrl+Y)"
+              >
+                ↷ Redo
+              </button>
+            </div>
+            
             <button
               style={{ background: "#232b3a", color: "#fff", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 500, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #0002" }}
               onClick={handleClear}
@@ -706,7 +1053,7 @@ export default function SharedCanvasPage() {
           </div>
           
           <p style={{ fontSize: 13, color: "#94a3b8", margin: 0, fontWeight: 500 }}>
-            Tip: B/P/E/F/T to switch tools.
+            Tips: 1-5 for tools • Ctrl+Z/Y for undo/redo
           </p>
         </aside>
 
@@ -748,13 +1095,116 @@ export default function SharedCanvasPage() {
                 cursor: tool === "brush" ? "crosshair" : tool === "eraser" ? "grab" : "pointer"
               }}
               onMouseDown={handleDown}
-              onMouseMove={handleMove}
-              onMouseUp={handleUp}
-              onMouseLeave={handleUp}
+              onMouseMove={(e) => {
+                handleTextBoxMouseMove(e);
+                handleMove(e);
+              }}
+              onMouseUp={() => {
+                handleTextBoxMouseUp();
+                handleUp();
+              }}
+              onMouseLeave={() => {
+                handleTextBoxMouseUp();
+                handleUp();
+              }}
               onTouchStart={handleDown}
               onTouchMove={handleMove}
               onTouchEnd={handleUp}
             />
+            
+            {/* Interactive Text Boxes */}
+            {textBoxes.map((textBox) => (
+              <div
+                key={textBox.id}
+                style={{
+                  position: 'absolute',
+                  left: `${textBox.x}px`,
+                  top: `${textBox.y}px`,
+                  width: `${textBox.width}px`,
+                  minHeight: `${textBox.height}px`,
+                  zIndex: 1001,
+                  cursor: isDragging && selectedTextBox === textBox.id ? 'grabbing' : 'grab',
+                  border: selectedTextBox === textBox.id ? '2px dashed #38bdf8' : '2px solid transparent',
+                  borderRadius: '4px',
+                  background: selectedTextBox === textBox.id ? 'rgba(56, 189, 248, 0.1)' : 'transparent',
+                  padding: '4px'
+                }}
+                onMouseDown={(e) => handleTextBoxMouseDown(e, textBox.id)}
+              >
+                {textBox.isEditing ? (
+                  <textarea
+                    value={textBox.text}
+                    onChange={(e) => updateTextBox(textBox.id, { text: e.target.value })}
+                    onBlur={() => updateTextBox(textBox.id, { isEditing: false })}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Escape') {
+                        updateTextBox(textBox.id, { isEditing: false });
+                      }
+                    }}
+                    autoFocus
+                    style={{
+                      width: '100%',
+                      minHeight: `${textBox.height}px`,
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none',
+                      fontSize: `${textBox.fontSize}px`,
+                      color: textBox.color,
+                      fontFamily: 'Arial, sans-serif',
+                      resize: 'both',
+                      overflow: 'hidden'
+                    }}
+                  />
+                ) : (
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateTextBox(textBox.id, { isEditing: true });
+                    }}
+                    style={{
+                      fontSize: `${textBox.fontSize}px`,
+                      color: textBox.color,
+                      fontFamily: 'Arial, sans-serif',
+                      whiteSpace: 'pre-wrap',
+                      wordBreak: 'break-word',
+                      minHeight: `${textBox.height}px`,
+                      cursor: 'text'
+                    }}
+                  >
+                    {textBox.text}
+                  </div>
+                )}
+                
+                {/* Text box controls */}
+                {selectedTextBox === textBox.id && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: '-8px',
+                      right: '-8px',
+                      background: '#ff4444',
+                      borderRadius: '50%',
+                      width: '20px',
+                      height: '20px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '12px',
+                      color: '#fff',
+                      cursor: 'pointer',
+                      border: '2px solid #fff',
+                      boxShadow: '0 2px 4px rgba(0,0,0,0.3)'
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteTextBox(textBox.id);
+                    }}
+                  >
+                    ×
+                  </div>
+                )}
+              </div>
+            ))}
             
             {/* Real-time cursors */}
             {Array.from(cursors.values()).map((cursor) => (
