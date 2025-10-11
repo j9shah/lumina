@@ -559,6 +559,28 @@ export default function SharedCanvasPage() {
           
           <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             <button
+              style={{ 
+                background: "linear-gradient(135deg, #10b981, #059669)", 
+                color: "#fff", 
+                border: "none", 
+                borderRadius: 12, 
+                padding: "12px 14px", 
+                fontSize: 16, 
+                fontWeight: 700, 
+                cursor: "pointer", 
+                marginBottom: 4, 
+                boxShadow: "0 2px 8px rgba(16, 185, 129, 0.3)" 
+              }}
+              onClick={() => {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url);
+                alert(`Session link copied!\n\nShare this URL:\n${url}\n\nOr share session ID: ${sessionId}`);
+              }}
+              title="Copy shareable link for collaboration"
+            >
+              🔗 Share Session
+            </button>
+            <button
               style={{ background: "#232b3a", color: "#fff", border: "none", borderRadius: 12, padding: "12px 14px", fontSize: 16, fontWeight: 500, cursor: "pointer", marginBottom: 4, boxShadow: "0 2px 8px #0002" }}
               onClick={handleClear}
             >Clear</button>
