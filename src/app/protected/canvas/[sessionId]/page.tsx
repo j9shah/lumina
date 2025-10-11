@@ -4,11 +4,11 @@ import { createClient } from '@/lib/supabase/client';
 import { useParams } from 'next/navigation';
 
 const TOOLS = [
-  { key: "brush", label: "🖌️ Brush" },
-  { key: "pencil", label: "✏️ Pencil" },
-  { key: "eraser", label: "🩹 Eraser" },
-  { key: "bucket", label: "🪣 Bucket" },
-  { key: "text", label: "🅣 Text" },
+  { key: "brush", label: "Brush" },
+  { key: "pencil", label: "Pencil" },
+  { key: "eraser", label: "Eraser" },
+  { key: "bucket", label: "Bucket" },
+  { key: "text", label: "Text" },
 ];
 
 interface DrawingEvent {
@@ -990,7 +990,7 @@ export default function SharedCanvasPage() {
               }}
               title="Copy shareable link for collaboration"
             >
-              🔗 Share Session
+              Share Session
             </button>
             
             <div style={{ display: "flex", gap: "8px" }}>
@@ -1011,7 +1011,7 @@ export default function SharedCanvasPage() {
                 disabled={historyIndex <= 0}
                 title="Undo (Ctrl+Z)"
               >
-                ↶ Undo
+                Undo
               </button>
               <button
                 style={{ 
@@ -1030,7 +1030,7 @@ export default function SharedCanvasPage() {
                 disabled={historyIndex >= history.length - 1}
                 title="Redo (Ctrl+Y)"
               >
-                ↷ Redo
+                Redo
               </button>
             </div>
             
@@ -1273,11 +1273,11 @@ export default function SharedCanvasPage() {
 
 function getToolEmoji(tool: string): string {
   switch (tool) {
-    case 'brush': return '🖌️';
-    case 'pencil': return '✏️';
-    case 'eraser': return '🩹';
-    case 'bucket': return '🪣';
-    case 'text': return '🅣';
-    default: return '🖌️';
+    case 'brush': return 'B';
+    case 'pencil': return 'P';
+    case 'eraser': return 'E';
+    case 'bucket': return 'F';
+    case 'text': return 'T';
+    default: return 'B';
   }
 }

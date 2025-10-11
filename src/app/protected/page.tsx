@@ -51,7 +51,7 @@ export default function ProtectedPage() {
       justifyContent: "center"
     }}>
       <div style={{
-        maxWidth: '600px',
+        maxWidth: '800px',
         width: '100%',
         background: '#232b3a',
         borderRadius: '24px',
@@ -59,52 +59,31 @@ export default function ProtectedPage() {
         boxShadow: '0 4px 32px rgba(0,0,0,0.3)',
         textAlign: 'center'
       }}>
-        <div style={{ marginBottom: '2rem' }}>
-          <h1 style={{
-            fontSize: '2.5rem',
-            fontWeight: 700,
-            margin: '0 0 1rem 0',
-            color: '#fff',
-            background: 'linear-gradient(135deg, #38bdf8, #10b981)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent'
+        {user && (
+          <div style={{
+            background: '#181f2a',
+            borderRadius: '12px',
+            padding: '1rem',
+            marginBottom: '2rem',
+            border: '2px solid #38bdf8'
           }}>
-            🎨 Collaborative Painting
-          </h1>
-          <p style={{
-            color: '#94a3b8',
-            fontSize: '1.1rem',
-            margin: '0 0 2rem 0',
-            lineHeight: '1.6'
-          }}>
-            Create or join a real-time collaborative canvas where multiple users can paint together!
-          </p>
-          
-          {user && (
-            <div style={{
-              background: '#181f2a',
-              borderRadius: '12px',
-              padding: '1rem',
-              marginBottom: '2rem',
-              border: '2px solid #38bdf8'
-            }}>
-              <div style={{ color: '#38bdf8', fontSize: '14px', fontWeight: 600 }}>
-                Welcome back, {user.email}!
-              </div>
+            <div style={{ color: '#38bdf8', fontSize: '14px', fontWeight: 600 }}>
+              Welcome back, {user.email}!
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', gap: '2rem', alignItems: 'stretch' }}>
           {/* Create New Session */}
           <div style={{
+            flex: 1,
             background: '#181f2a',
             borderRadius: '16px',
             padding: '2rem',
             border: '2px solid #10b981'
           }}>
             <h3 style={{ margin: '0 0 1rem 0', color: '#10b981', fontSize: '1.3rem' }}>
-              🚀 Start New Session
+              Start New Session
             </h3>
             <p style={{ color: '#cbd5e1', margin: '0 0 1.5rem 0', fontSize: '14px' }}>
               Create a fresh canvas and invite others to collaborate
@@ -139,31 +118,33 @@ export default function ProtectedPage() {
 
           {/* Join Existing Session */}
           <div style={{
+            flex: 1,
             background: '#181f2a',
             borderRadius: '16px',
             padding: '2rem',
             border: '2px solid #38bdf8'
           }}>
             <h3 style={{ margin: '0 0 1rem 0', color: '#38bdf8', fontSize: '1.3rem' }}>
-              🔗 Join Existing Session
+              Join Existing Session
             </h3>
             <p style={{ color: '#cbd5e1', margin: '0 0 1.5rem 0', fontSize: '14px' }}>
               Enter a session ID to join someone else's canvas
             </p>
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <input
                 type="text"
                 value={sessionId}
                 onChange={(e) => setSessionId(e.target.value)}
                 placeholder="Enter session ID..."
                 style={{
-                  flex: 1,
+                  width: '100%',
                   padding: '14px 16px',
                   borderRadius: '8px',
                   border: '2px solid #4a5568',
                   background: '#232b3a',
                   color: '#fff',
-                  fontSize: '16px'
+                  fontSize: '16px',
+                  boxSizing: 'border-box'
                 }}
                 onKeyPress={(e) => e.key === 'Enter' && joinSession()}
               />
@@ -179,15 +160,14 @@ export default function ProtectedPage() {
                   fontSize: '16px',
                   fontWeight: 600,
                   cursor: sessionId.trim() ? 'pointer' : 'not-allowed',
-                  transition: 'all 0.2s'
+                  transition: 'all 0.2s',
+                  width: '100%'
                 }}
               >
                 Join
               </button>
-            </div>
-            
-            {sessionId.trim() && (
-              <div style={{ marginTop: '1rem' }}>
+              
+              {sessionId.trim() && (
                 <button
                   onClick={shareCurrentUrl}
                   style={{
@@ -199,7 +179,8 @@ export default function ProtectedPage() {
                     fontSize: '14px',
                     fontWeight: 600,
                     cursor: 'pointer',
-                    transition: 'all 0.2s'
+                    transition: 'all 0.2s',
+                    width: '100%'
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = '#38bdf8';
@@ -210,39 +191,9 @@ export default function ProtectedPage() {
                     e.currentTarget.style.color = '#38bdf8';
                   }}
                 >
-                  📋 Copy Share Link
+                  Copy Share Link
                 </button>
-              </div>
-            )}
-          </div>
-        </div>
-
-        <div style={{
-          marginTop: '2rem',
-          padding: '1.5rem',
-          background: 'rgba(56, 189, 248, 0.1)',
-          borderRadius: '12px',
-          border: '1px solid rgba(56, 189, 248, 0.2)'
-        }}>
-          <h4 style={{ margin: '0 0 1rem 0', color: '#38bdf8', fontSize: '1.1rem' }}>
-            ✨ Real-time Features
-          </h4>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', textAlign: 'left' }}>
-            <div style={{ color: '#cbd5e1', fontSize: '14px' }}>
-              🖌️ <strong>Live Drawing Sync</strong><br />
-              See everyone's strokes in real-time
-            </div>
-            <div style={{ color: '#cbd5e1', fontSize: '14px' }}>
-              👥 <strong>User Presence</strong><br />
-              Track who's online and active
-            </div>
-            <div style={{ color: '#cbd5e1', fontSize: '14px' }}>
-              🎯 <strong>Live Cursors</strong><br />
-              See other users' mouse positions
-            </div>
-            <div style={{ color: '#cbd5e1', fontSize: '14px' }}>
-              🔧 <strong>Tool Indicators</strong><br />
-              View what tools others are using
+              )}
             </div>
           </div>
         </div>
