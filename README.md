@@ -34,14 +34,14 @@ Lumina Paint lets you create drawing sessions that anyone can join with a link. 
 
 When you create a new session, you get a unique session ID (like `m8k3j-x9q2w`). Share that link with anyone, and they'll join the same canvas. All drawing happens client-side in an HTML canvas, and Supabase Realtime broadcasts every stroke to everyone in the session.
 
-The canvas data isn't stored anywhere—it only exists while people are connected. Once everyone leaves, the session is gone. If you want to keep your work, download it as an image.
+The canvas data isn't stored anywhere, it only exists while people are connected. Once everyone leaves, the session is gone. If you want to keep your work, download it as an image.
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18+ and npm
-- A Supabase account ([sign up free](https://supabase.com))
+- A Supabase account ( [sign up free](https://supabase.com) )
 
 ### Setup
 
@@ -115,11 +115,3 @@ Lumina uses Supabase Realtime Channels with two main features:
 **Presence** - Tracks who's online and their cursor positions. Every user subscribes to the channel and shares their cursor coordinates, which get rendered as colored dots with usernames.
 
 No drawing data touches the database. Everything happens in memory and gets lost when the session ends. The only thing stored in Supabase is user accounts (email, hashed password).
-
-## License
-
-MIT
-
-## Contributing
-
-Pull requests welcome. For major changes, open an issue first.
