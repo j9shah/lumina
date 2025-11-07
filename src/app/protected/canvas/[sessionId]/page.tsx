@@ -118,11 +118,11 @@ export default function SharedCanvasPage() {
         setConnectedUsers(users);
       });
 
-      realtimeChannel.on('presence', { event: 'join' }, ({ key, newPresences }) => {
-        console.log('User joined:', key);
+      realtimeChannel.on('presence', { event: 'join' }, ({ key }) => {
+        // User joined the session
       });
 
-      realtimeChannel.on('presence', { event: 'leave' }, ({ key, leftPresences }) => {
+      realtimeChannel.on('presence', { event: 'leave' }, ({ key }) => {
         setCursors(prev => {
           const newCursors = new Map(prev);
           newCursors.delete(key);
@@ -617,12 +617,10 @@ export default function SharedCanvasPage() {
     a.click();
   }
 
-  // save as pdf (currently just saves as png with pdf name)
   function handleSavePDF(name: string) {
     const canvas = canvasRef.current;
     if (!canvas) return;
     
-    // make temp canvas with white background
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
     if (!tempCtx) return;
@@ -630,7 +628,6 @@ export default function SharedCanvasPage() {
     tempCanvas.width = canvas.width;
     tempCanvas.height = canvas.height;
     
-    // white background
     tempCtx.fillStyle = '#ffffff';
     tempCtx.fillRect(0, 0, canvas.width, canvas.height);
     

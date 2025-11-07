@@ -1,8 +1,9 @@
-"use client"
+"use client";
+
 export default function Home() {
   return (
     <main className="min-h-screen bg-[#181f2a] flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Animated Painting Emojis Background */}
+      {/* Background Art */}
       <div className="absolute inset-0 pointer-events-none z-0">
         <span className="absolute top-10 left-10 text-[5rem] opacity-10 animate-bounce-slow">🎨</span>
         <span className="absolute top-1/2 left-1/4 text-[4rem] opacity-10 animate-bounce-medium">🖌️</span>
@@ -28,7 +29,6 @@ export default function Home() {
           Start painting, sketching, and expressing yourself. Simple, fun, and vibrant—just like MS Paint!
         </p>
 
-        {/* Paint Activity Input (no checkbox) */}
         <div className="flex flex-col items-start gap-2 relative">
           <label className="text-white text-lg font-semibold mb-2">Draw something...</label>
           <div className="flex items-center bg-[#232b3a] rounded-xl px-6 py-4 min-w-[320px] shadow-lg">
@@ -36,7 +36,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Paint Color Swatches */}
+        {/* Color Palette */}
         <div className="flex gap-2 mt-4">
           <span className="text-2xl">🟥</span>
           <span className="text-2xl">🟧</span>
@@ -46,7 +46,6 @@ export default function Home() {
           <span className="text-2xl">🟪</span>
         </div>
 
-        {/* Call to Action */}
         <a href="/auth/login" className="mt-8 px-8 py-3 bg-green-400 text-[#181f2a] font-bold rounded-full shadow hover:bg-green-300 transition text-center">
           Start Painting
         </a>
@@ -57,7 +56,6 @@ export default function Home() {
         <p>© 2025 Lumina Paint. All rights reserved.</p>
       </footer>
 
-      {/* Simple bouncing animation styles */}
       <style jsx>{`
         @keyframes bounce-slow {
           0%, 100% { transform: translateY(0); }

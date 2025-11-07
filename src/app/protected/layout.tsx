@@ -1,8 +1,4 @@
-import { DeployButton } from "@/components/deploy-button";
-import { EnvVarWarning } from "@/components/env-var-warning";
-import { AuthButton } from "@/components/auth-button";
-import { ThemeSwitcher } from "@/components/theme-switcher";
-import { hasEnvVars } from "@/lib/utils";
+import { AuthButton } from "@/components/auth/auth-button";
 import Link from "next/link";
 
 export default function ProtectedLayout({
@@ -29,12 +25,11 @@ export default function ProtectedLayout({
       }}>
         <div style={{ display: "flex", gap: 16, alignItems: "center", fontSize: 14 }}>
           <Link href={"/"} style={{ color: "#fff", textDecoration: "none", fontWeight: 600 }}>
-            Next.js Supabase Starter
+            🎨 Lumina Paint
           </Link>
-          <DeployButton />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-          {!hasEnvVars ? <EnvVarWarning /> : <AuthButton />}
+          <AuthButton />
         </div>
       </nav>
       
