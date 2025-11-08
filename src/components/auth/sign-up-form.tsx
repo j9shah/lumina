@@ -40,14 +40,23 @@ export function SignUpForm({
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           emailRedirectTo: `${window.location.origin}/protected`,
         },
       });
+      
       if (error) throw error;
+      
+      // Check if user already exists (Supabase returns user but with identities: [])
+      if (data.user && data.user.identities && data.user.identities.length === 0) {
+        setError("An account with this email already exists");
+        setIsLoading(false);
+        return;
+      }
+      
       router.push("/auth/sign-up-success");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");

@@ -908,9 +908,32 @@ export default function SharedCanvasPage() {
           overflowY: "auto" 
         }}>
           <div>
-            <h1 style={{ margin: "0 0 12px", fontSize: 22, color: "#333", fontWeight: 'bold' }}>
-              Lumina Paint
-            </h1>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h1 style={{ margin: 0, fontSize: 22, color: "#333", fontWeight: 'bold' }}>
+                Lumina Paint
+              </h1>
+              <button
+                onClick={() => window.location.href = '/protected'}
+                style={{
+                  padding: '6px 12px',
+                  border: '1px solid #ccc',
+                  background: '#fff',
+                  color: '#666',
+                  fontSize: 13,
+                  cursor: 'pointer',
+                  borderRadius: '4px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 4
+                }}
+                title="Exit canvas"
+              >
+                <svg style={{ width: 14, height: 14 }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Exit
+              </button>
+            </div>
             <div style={{ fontSize: 12, color: "#666", marginBottom: 16 }}>
               Session: {sessionId}
             </div>

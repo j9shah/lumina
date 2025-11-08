@@ -41,151 +41,82 @@ export default function ProtectedPage() {
   };
 
   return (
-    <div style={{
-      minHeight: "calc(100vh - 60px)",
-      background: "#e3e5ea", // Slightly darker cozy grey
-      padding: "4rem 0 0 6vw",
-      display: "block"
-    }}>
-      <div style={{
-        maxWidth: '1200px',
-        width: '100%',
-        background: 'none',
-        borderRadius: '0',
-        padding: '0',
-        boxShadow: 'none',
-        textAlign: 'left'
-      }}>
+    <div className="min-h-[calc(100vh-60px)] bg-[#0d0d0d] px-8 py-12">
+      <div className="max-w-6xl mx-auto">
         {user && (
-          <div style={{
-            marginBottom: '2rem',
-            padding: '0.75rem 1rem',
-            background: '#e8f5e8',
-            border: '1px solid #c3e6c3',
-            borderRadius: '3px'
-          }}>
-            <div style={{ color: '#2d5a2d', fontSize: '14px' }}>
-              Welcome back, {user.email}
-            </div>
+          <div className="mb-8 p-4 rounded-lg bg-white/[0.03] border border-white/10">
+            <p className="text-sm text-gray-400">
+              Signed in as <span className="text-white font-medium">{user.email}</span>
+            </p>
           </div>
         )}
 
-        <div style={{
-          display: 'flex',
-          gap: '2rem',
-          alignItems: 'stretch',
-          justifyContent: 'center',
-          flexWrap: 'wrap',
-        }}>
+        <div className="mb-12">
+          <h1 className="text-3xl font-bold text-white mb-2">Canvas sessions</h1>
+          <p className="text-gray-400">Create a new canvas or join an existing one</p>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
           {/* Create New Session Card */}
-          <div style={{
-            flex: '1 1 480px',
-            maxWidth: '540px',
-            minWidth: '340px',
-            background: '#f6f7fa',
-            borderRadius: '32px',
-            padding: '2.5rem',
-            boxShadow: '0 2px 16px #cfd2d6',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <h3 style={{ margin: '0 0 1.5rem 0', color: '#2d7a46', fontSize: '2.2rem', fontWeight: 700 }}>
-              Start New Session
+          <div className="p-8 rounded-xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition">
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center mb-6">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              New canvas
             </h3>
-            <p style={{ color: '#555', margin: '0 0 2rem 0', fontSize: '1.2rem' }}>
-              Create a fresh canvas and invite others to collaborate
+            <p className="text-gray-400 text-sm mb-6">
+              Start fresh and invite others to collaborate
             </p>
             <button
               onClick={createNewSession}
-              style={{
-                background: '#2d7a46',
-                color: '#fff',
-                border: 'none',
-                borderRadius: '32px',
-                padding: '20px 0',
-                fontSize: '1.3rem',
-                fontWeight: 700,
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px #cfd2d6',
-                width: '100%'
-              }}
+              className="w-full px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition"
             >
-              Create New Canvas
+              Create canvas
             </button>
           </div>
 
           {/* Join Existing Session Card */}
-          <div style={{
-            flex: '1 1 480px',
-            maxWidth: '540px',
-            minWidth: '340px',
-            background: '#f6f7fa',
-            borderRadius: '32px',
-            padding: '2.5rem',
-            boxShadow: '0 2px 16px #cfd2d6',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-            <h3 style={{ margin: '0 0 1.5rem 0', color: '#38bdf8', fontSize: '2.2rem', fontWeight: 700 }}>
-              Join Existing Session
+          <div className="p-8 rounded-xl bg-white/[0.02] border border-white/10 hover:border-white/20 transition">
+            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center mb-6">
+              <svg className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">
+              Join session
             </h3>
-            <p style={{ color: '#555', margin: '0 0 2rem 0', fontSize: '1.2rem' }}>
-              Enter a session ID to join someone else's canvas
+            <p className="text-gray-400 text-sm mb-6">
+              Enter a session ID to collaborate
             </p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+            <div className="space-y-3">
               <input
                 type="text"
                 value={sessionId}
                 onChange={(e) => setSessionId(e.target.value)}
-                placeholder="Enter session ID..."
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  border: '1px solid #ccc',
-                  background: '#fff',
-                  color: '#333',
-                  fontSize: '1rem',
-                  boxSizing: 'border-box'
-                }}
+                placeholder="Paste session ID..."
+                className="w-full px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 onKeyPress={(e) => e.key === 'Enter' && joinSession()}
               />
               <button
                 onClick={joinSession}
                 disabled={!sessionId.trim()}
-                style={{
-                  background: sessionId.trim() ? '#38bdf8' : '#b0b8c1',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: '32px',
-                  padding: '18px 0',
-                  fontSize: '1.1rem',
-                  fontWeight: 700,
-                  cursor: sessionId.trim() ? 'pointer' : 'not-allowed',
-                  width: '100%',
-                  boxShadow: '0 2px 8px #cfd2d6'
-                }}
+                className={`w-full px-6 py-3 font-medium rounded-lg transition ${
+                  sessionId.trim() 
+                    ? 'bg-white text-black hover:bg-gray-100' 
+                    : 'bg-white/10 text-gray-600 cursor-not-allowed'
+                }`}
               >
-                Join
+                Join canvas
               </button>
               {sessionId.trim() && (
                 <button
                   onClick={shareCurrentUrl}
-                  style={{
-                    background: '#fff',
-                    color: '#4a90e2',
-                    border: '1px solid #4a90e2',
-                    padding: '10px',
-                    fontSize: '1rem',
-                    fontWeight: 'normal',
-                    cursor: 'pointer',
-                    width: '100%'
-                  }}
+                  className="w-full px-4 py-2 text-sm text-gray-400 hover:text-white border border-white/10 rounded-lg hover:border-white/20 transition"
                 >
-                  Copy Share Link
+                  Copy link
                 </button>
               )}
             </div>
