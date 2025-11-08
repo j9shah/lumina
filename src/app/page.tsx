@@ -2,7 +2,7 @@
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#0d0d0d] flex flex-col items-center justify-center relative overflow-hidden">
+    <main className="min-h-screen bg-[#0d0d0d] flex flex-col relative overflow-hidden">
       {/* Gradient Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f0f0f] z-0" />
       
@@ -15,45 +15,46 @@ export default function Home() {
       <div className="absolute bottom-32 left-[10%] w-80 h-80 bg-blue-500/10 rounded-full blur-3xl z-0" />
 
       {/* Header */}
-      <nav className="absolute top-0 w-full flex justify-between items-center px-8 h-16 z-20 border-b border-white/5">
-        <div className="flex items-center gap-2 text-lg font-semibold text-white">
-          <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg" />
+      <nav className="flex-shrink-0 w-full flex justify-between items-center px-4 md:px-8 h-16 z-20 border-b border-white/5">
+        <div className="flex items-center gap-2 text-base md:text-lg font-semibold text-white">
+          <div className="w-7 h-7 md:w-8 md:h-8 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg" />
           Lumina
         </div>
-        <a href="/auth/login" className="text-sm text-gray-400 hover:text-white transition">
+        <a href="/auth/login" className="text-xs md:text-sm text-gray-400 hover:text-white transition">
           Sign in
         </a>
       </nav>
 
       {/* Main Content */}
-      <section className="flex flex-col items-center gap-6 z-10 max-w-3xl px-6">
+      <section className="flex-1 flex flex-col items-center justify-center gap-4 md:gap-6 z-10 max-w-5xl w-full mx-auto px-4 md:px-6 py-8 md:py-12">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-xs text-gray-400 mb-2">
           <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
           Real-time collaboration
         </div>
         
-        <h1 className="text-6xl font-bold text-white text-center leading-tight">
-          Collaborative canvas<br />for creative teams
+        <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-white text-center leading-tight max-w-4xl">
+          Collaborative canvas<br className="hidden sm:block" />
+          <span className="sm:hidden"> </span>for creative teams
         </h1>
         
-        <p className="text-xl text-gray-400 text-center max-w-2xl">
+        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-400 text-center max-w-2xl px-4">
           Draw together in real-time. Share a link, invite your team, and start creating instantly.
         </p>
 
         {/* CTA Buttons */}
-        <div className="flex gap-4 mt-6">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mt-4 md:mt-6 w-full sm:w-auto">
           <a href="/auth/sign-up" 
-             className="px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition shadow-lg">
+             className="px-6 py-3 bg-white text-black font-medium rounded-lg hover:bg-gray-100 transition shadow-lg text-center">
             Get started
           </a>
           <a href="/auth/login" 
-             className="px-6 py-3 bg-white/5 text-white font-medium rounded-lg hover:bg-white/10 transition border border-white/10">
+             className="px-6 py-3 bg-white/5 text-white font-medium rounded-lg hover:bg-white/10 transition border border-white/10 text-center">
             Sign in
           </a>
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-3 gap-4 mt-16 w-full">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-8 md:mt-16 w-full">
           <div className="p-6 rounded-xl bg-white/[0.02] border border-white/5 backdrop-blur">
             <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4">
               <svg className="w-5 h-5 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -87,7 +88,7 @@ export default function Home() {
       </section>
 
       {/* Footer */}
-      <footer className="absolute bottom-0 w-full flex justify-center py-6 border-t border-white/5 z-20">
+      <footer className="flex-shrink-0 w-full flex justify-center py-4 md:py-6 border-t border-white/5 z-20">
         <p className="text-xs text-gray-600">© 2025 Lumina Paint</p>
       </footer>
     </main>
