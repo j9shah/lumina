@@ -32,7 +32,7 @@ Lumina Paint lets you create drawing sessions that anyone can join with a link. 
 
 ## How It Works
 
-When you create a new session, you get a unique session ID (like `m8k3j-x9q2w`). Share that link with anyone, and they'll join the same canvas. All drawing happens client-side in an HTML canvas, and Supabase Realtime broadcasts every stroke to everyone in the session.
+When you create a new session, you get a unique session ID (like `m8k3j-x9q2w`). Share that link with anyone, and they'll join the same canvas live! All drawing happens client-side in an HTML canvas, and Supabase Realtime broadcasts every stroke to everyone in the session.
 
 The canvas data isn't stored anywhere, it only exists while people are connected. Once everyone leaves, the session is gone. If you want to keep your work, download it as an image.
 
